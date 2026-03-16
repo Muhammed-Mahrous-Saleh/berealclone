@@ -1,9 +1,9 @@
 import { StyleSheet, Text, View } from "react-native";
 
-export default function About() {
+export default function Signup() {
     return (
         <View style={styles.container}>
-            <Text>About Screen.</Text>
+            <Text>Sign Up</Text>
         </View>
     );
 }
