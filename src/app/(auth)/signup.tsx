@@ -41,7 +41,7 @@ export default function SignUp() {
                         }}
                     >
                         <Text style={styles.linkButtonText}>
-                            Already hava an account?{" "}
+                            Already have an account?{" "}
                             <Text style={styles.linkButtonTextBold}>
                                 Sign in
                             </Text>
