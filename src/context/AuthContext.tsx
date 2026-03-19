@@ -3,15 +3,15 @@ import { createContext, ReactNode, useContext, useState } from "react";
 
 export interface User {
     id: string;
-    name: string;
-    email: string;
-    username: string;
+    name?: string;
+    email?: string;
+    username?: string;
     profileImage?: string;
     onboardingCompleted?: boolean;
 }
 interface AuthContextType {
     user: User | null;
-    signUp: (email: string, password: string) => Promise<void>;
+    signUp: (email: string, password: string) => Promise<User | undefined>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -31,6 +31,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
         if (data.user) {
             console.log(data.user);
+            return data.user;
         }
     };
     return (
