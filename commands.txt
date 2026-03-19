@@ -1,0 +1,2 @@
+# to fix any package version not compatible with expo other versions 
+npx expo-doctor
