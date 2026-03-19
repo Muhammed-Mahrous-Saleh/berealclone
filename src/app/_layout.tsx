@@ -1,3 +1,4 @@
+import { AuthProvider } from "@/context/AuthContext";
 import { Slot, useRouter } from "expo-router";
 import "expo-router/entry";
 import { useEffect } from "react";
@@ -12,7 +13,11 @@ export default function RootLayout() {
         //     router.replace("./(tabs)");
         // }
     });
-    return <Slot />;
+    return (
+        <AuthProvider>
+            <Slot />
+        </AuthProvider>
+    );
     {
         /* <Stack screenOptions={{ headerShown: false }}>
                 <Stack.Screen name="(tabs)" />
