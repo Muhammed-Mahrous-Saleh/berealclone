@@ -1,3 +1,4 @@
+import { supabase } from "@/lib/supabase/client";
 import { Text } from "@react-navigation/elements";
 import { Image } from "expo-image";
 import * as ImagePicker from "expo-image-picker";
@@ -20,8 +21,52 @@ export default function OnBoarding() {
 
     const handleComplete = async () => {
         setIsLoading(true);
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-        setIsLoading(false);
+        try {
+            if (!name || !userName) {
+                throw { message: "Please fill in all fields." };
+            } else if (userName.length < 3) {
+                throw { message: "User name must be at least 3 characters." };
+            }
+            // check if user name already exists
+            const { count } = await supabase
+                .from("profiles")
+                .select("id")
+                .eq("user_name", userName);
+            if (count) {
+                throw {
+                    message:
+                        "User name already taken, Please choose another one.",
+                };
+            }
+
+            const user = await supabase.auth.getUserIdentities();
+            if (!user) {
+                throw { message: "User not found." };
+            }
+            console.log("user :>> ", user.data?.identities);
+            // const { data, error } = await supabase
+            //     .from("profiles")
+            //     .insert({
+            //         id: user.id,
+            //         name,
+            //         user_name: userName,
+            //         profile_image: profileImage,
+            //     });
+            // if (error) throw error;
+
+            Alert.alert("Success", "Signed up successfully");
+        } catch (error: { message: string } | any) {
+            if (error.code === "validation_failed") {
+                // invalid email entered
+                return Alert.alert("Error", "Please recheck your email.");
+            }
+            Alert.alert(
+                "Error",
+                error.message || "Failed to complete profile.",
+            );
+        } finally {
+            setIsLoading(false);
+        }
     };
     const pickImage = async () => {
         const { status } =
@@ -44,6 +89,44 @@ export default function OnBoarding() {
         }
         console.log(result);
     };
+
+    const takeAPhoto = async () => {
+        const { status } = await ImagePicker.requestCameraPermissionsAsync();
+        if (status !== "granted") {
+            Alert.alert(
+                "Permission Needed",
+                "Please allow us to access your camera.",
+            );
+            return;
+        }
+        let result = await ImagePicker.launchCameraAsync({
+            mediaTypes: ["images"],
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 0.8,
+        });
+        if (!result.canceled && result.assets[0]) {
+            setProfileImage(result.assets[0].uri);
+        }
+        console.log(result);
+    };
+
+    const showImagePicker = () => {
+        Alert.alert("Select Profile Image", "Choose an option", [
+            {
+                text: "Camera",
+                onPress: takeAPhoto,
+            },
+            {
+                text: "Gallery",
+                onPress: pickImage,
+            },
+            {
+                text: "Cancel",
+                style: "cancel",
+            },
+        ]);
+    };
     return (
         <SafeAreaView edges={["top", "bottom"]} style={styles.container}>
             <View style={styles.content}>
@@ -57,7 +140,7 @@ export default function OnBoarding() {
                     <TouchableOpacity
                         style={styles.imageContainer}
                         disabled={isLoading}
-                        onPress={pickImage}
+                        onPress={showImagePicker}
                     >
                         <View style={styles.placeholderImage}>
                             {profileImage ? (
