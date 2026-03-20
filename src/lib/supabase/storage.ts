@@ -5,7 +5,7 @@ export const uploadProfileImage = async (userId: string, imageUri: string) => {
     try {
         const fileExtension = imageUri.split(".").pop() || "jpg";
         const fileName = `${userId}/profile.${fileExtension}`;
-        const file = new File(imageUri, fileName);
+        const file = new File(imageUri);
         const bytes = await file.bytes();
 
         const { error } = await supabase.storage
