@@ -8,6 +8,7 @@ export default function Index() {
     const { signOut } = useAuth();
     const handleLogout = async () => {
         await signOut();
+        router.replace("../(auth)/login");
     };
     const { user } = useAuth();
     console.log(user);
