@@ -71,7 +71,7 @@ export default function OnBoarding() {
                 onboarding_completed: true,
             });
 
-            router.replace("./(tabs)");
+            router.replace("../(tabs)");
         } catch (error: { message: string } | any) {
             Alert.alert(
                 "Error",
@@ -100,7 +100,6 @@ export default function OnBoarding() {
         if (!result.canceled && result.assets[0]) {
             setProfileImage(result.assets[0].uri);
         }
-        console.log(result);
     };
 
     const takeAPhoto = async () => {
