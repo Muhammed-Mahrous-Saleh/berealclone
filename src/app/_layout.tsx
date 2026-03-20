@@ -1,27 +1,40 @@
-import { AuthProvider } from "@/context/AuthContext";
-import { Slot, useRouter } from "expo-router";
+import { AuthProvider, useAuth } from "@/context/AuthContext";
+import { Stack, useRouter, useSegments } from "expo-router";
 import "expo-router/entry";
 import { useEffect } from "react";
 
-export default function RootLayout() {
+function RouteGuard() {
     const router = useRouter();
-    let isAuth = true;
+    const { user } = useAuth();
+    const segments = useSegments();
+
+    const inAuthGroup = segments[0] === "(auth)";
+    const inTabsGroup = segments[0] === "(tabs)";
+
+    const isAuth = !!user;
     useEffect(() => {
-        // if (!isAuth) {
-        //     router.replace("./(auth)/login");
-        // } else {
-        //     router.replace("./(tabs)");
-        // }
-    });
+        if (!user) {
+            if (!inAuthGroup) {
+                router.replace("./(auth)/login");
+            }
+        } else {
+            if (!inTabsGroup) {
+                router.replace("./(tabs)");
+            }
+        }
+    }, [user, segments, router]);
+    return (
+        <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="(tabs)" />
+            <Stack.Screen name="(auth)" />
+        </Stack>
+    );
+}
+
+export default function RootLayout() {
     return (
         <AuthProvider>
-            <Slot />
+            <RouteGuard />
         </AuthProvider>
     );
-    {
-        /* <Stack screenOptions={{ headerShown: false }}>
-                <Stack.Screen name="(tabs)" />
-                <Stack.Screen name="(auth)" />
-            </Stack> */
-    }
 }
