@@ -4,6 +4,7 @@ import { uploadProfileImage } from "@/lib/supabase/storage";
 import { Text } from "@react-navigation/elements";
 import { Image } from "expo-image";
 import * as ImagePicker from "expo-image-picker";
+import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
     ActivityIndicator,
@@ -20,7 +21,8 @@ export default function OnBoarding() {
     const [userName, setUserName] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [profileImage, setProfileImage] = useState("");
-    const { user } = useAuth();
+    const { user, updateUser } = useAuth();
+    const router = useRouter();
 
     const handleComplete = async () => {
         setIsLoading(true);
@@ -61,23 +63,16 @@ export default function OnBoarding() {
                     throw { message: "Failed to upload profile image." };
                 }
             }
-            // console.log("user :>> ", user.data?.identities);
-            // const { data, error } = await supabase
-            //     .from("profiles")
-            //     .insert({
-            //         id: user.id,
-            //         name,
-            //         user_name: userName,
-            //         profile_image: profileImage,
-            //     });
-            // if (error) throw error;
 
-            Alert.alert("Success", "Signed up successfully");
+            await updateUser({
+                profile_image_url: profileImageUrl,
+                name,
+                user_name: userName,
+                onboarding_completed: true,
+            });
+
+            router.replace("./(tabs)");
         } catch (error: { message: string } | any) {
-            if (error.code === "validation_failed") {
-                // invalid email entered
-                return Alert.alert("Error", "Please recheck your email.");
-            }
             Alert.alert(
                 "Error",
                 error.message || "Failed to complete profile.",

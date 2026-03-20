@@ -21,12 +21,6 @@ export default function SignUp() {
     const testing = true;
 
     const handleSignUp = async () => {
-        // todo: delete after finishing onboarding screen.
-        if (testing) {
-            router.push("./onBoarding");
-            return;
-        }
-
         setIsLoading(true);
         try {
             if (!email || !password) {
@@ -39,12 +33,13 @@ export default function SignUp() {
                 throw { message: "Please enter a valid email address." };
             }
             const user = await signUp(email, password);
-            Alert.alert("Success", "Signed up successfully");
+            if (user) router.replace("./onBoarding");
         } catch (error: { message: string } | any) {
             if (error.code === "validation_failed") {
                 // invalid email entered
-                return Alert.alert("Error", "Please recheck your email.");
+                error.message = "Please recheck your email.";
             }
+            console.error(error);
             Alert.alert("Error", error.message || "Failed to sign up.");
         } finally {
             setIsLoading(false);
