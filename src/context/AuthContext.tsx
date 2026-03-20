@@ -1,5 +1,12 @@
 import { supabase } from "@/lib/supabase/client";
-import { createContext, ReactNode, useContext, useState } from "react";
+import {
+    createContext,
+    ReactNode,
+    useContext,
+    useEffect,
+    useState,
+} from "react";
+import { ActivityIndicator, View } from "react-native";
 
 export interface User {
     id: string;
@@ -11,8 +18,8 @@ export interface User {
 }
 interface AuthContextType {
     user: User | null;
-    signIn: (email: string, password: string) => Promise<User | undefined>;
-    signUp: (email: string, password: string) => Promise<User | undefined>;
+    signIn: (email: string, password: string) => Promise<void>;
+    signUp: (email: string, password: string) => Promise<void>;
     updateUser: (userData: Partial<User>) => Promise<void>;
 }
 
@@ -20,6 +27,31 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        checkSession();
+    }, []);
+
+    const checkSession = async () => {
+        setIsLoading(true);
+        try {
+            const {
+                data: { session },
+            } = await supabase.auth.getSession();
+            if (session?.user) {
+                const profile = await fetchUserProfile(session.user.id);
+                setUser(profile);
+            } else {
+                setUser(null);
+            }
+        } catch (error) {
+            console.error("Error checking session:", error);
+            setUser(null);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     const fetchUserProfile = async (userId: string) => {
         try {
@@ -71,7 +103,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (data.user) {
             const profile = await fetchUserProfile(data.user.id);
             setUser(profile);
-            return profile;
         }
     };
 
@@ -86,7 +117,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (data.user) {
             const profile = await fetchUserProfile(data.user.id);
             setUser(profile);
-            return profile;
         }
     };
     const updateUser = async (userData: Partial<User>) => {
@@ -114,7 +144,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
     return (
         <AuthContext.Provider value={{ user, signIn, signUp, updateUser }}>
-            {children}
+            {(isLoading && (
+                <View>
+                    <ActivityIndicator size="large" color="blue" />
+                </View>
+            )) ||
+                children}
         </AuthContext.Provider>
     );
 };
