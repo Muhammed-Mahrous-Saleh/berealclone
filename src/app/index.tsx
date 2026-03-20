@@ -1,8 +1,10 @@
+import { useAuth } from "@/context/AuthContext";
 import { Redirect } from "expo-router";
 
 export default function Index() {
-    // You can also add logic here to check if the user is logged in
-    // if (!isLoggedIn) return <Redirect href="/(auth)/login" />;
+    const { user } = useAuth();
+    // check if the user is logged in
+    if (!user) return <Redirect href="/(auth)/login" />;
 
     return <Redirect href="/(tabs)" />;
 }
