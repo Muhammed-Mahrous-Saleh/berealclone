@@ -11,6 +11,7 @@ export interface User {
 }
 interface AuthContextType {
     user: User | null;
+    signIn: (email: string, password: string) => Promise<void>;
     signUp: (email: string, password: string) => Promise<User | undefined>;
     updateUser: (userData: Partial<User>) => Promise<void>;
 }
@@ -19,6 +20,45 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
+
+    const fetchUserProfile = async (userId: string) => {
+        try {
+            const { data, error } = await supabase
+                .from("profiles")
+                .select("*")
+                .eq("id", userId)
+                .single();
+            if (error)
+                throw {
+                    error,
+                    message: "Error while fetch user profile.",
+                };
+            if (!data) {
+                throw {
+                    error,
+                    message: "User profile not found.",
+                };
+            }
+            const authUser = await supabase.auth.getUser();
+            if (!authUser.data.user) {
+                throw {
+                    error,
+                    message: "User not authenticated.",
+                };
+            }
+            return {
+                id: data.id,
+                name: data.name,
+                user_name: data.user_name,
+                profile_image_url: data.profile_image_url,
+                onboarding_completed: data.onboarding_completed,
+                email: authUser.data.user.email,
+            };
+        } catch (error) {
+            console.error("Error fetching user profile:", error);
+            throw error;
+        }
+    };
 
     const signIn = async (email: string, password: string) => {};
 
@@ -31,8 +71,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (error) throw error;
 
         if (data.user) {
-            setUser(data.user);
-            return data.user;
+            const profile = await fetchUserProfile(data.user.id);
+            setUser(profile);
+            return profile;
         }
     };
     const updateUser = async (userData: Partial<User>) => {
@@ -59,7 +100,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
     };
     return (
-        <AuthContext.Provider value={{ user, signUp, updateUser }}>
+        <AuthContext.Provider value={{ user, signIn, signUp, updateUser }}>
             {children}
         </AuthContext.Provider>
     );
