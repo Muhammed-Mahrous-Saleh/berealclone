@@ -15,11 +15,11 @@ function RouteGuard() {
     useEffect(() => {
         if (!user) {
             if (!inAuthGroup) {
-                router.replace("./(auth)/login");
+                router.replace("/(auth)/login");
             }
         } else {
             if (!inTabsGroup) {
-                router.replace("./(tabs)");
+                router.replace("/(tabs)");
             }
         }
     }, [user, segments, router]);
@@ -27,6 +27,7 @@ function RouteGuard() {
         <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen name="(tabs)" />
             <Stack.Screen name="(auth)" />
+            <Stack.Screen name="index" />
         </Stack>
     );
 }
