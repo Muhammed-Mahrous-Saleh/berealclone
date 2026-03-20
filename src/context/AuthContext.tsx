@@ -20,6 +20,7 @@ interface AuthContextType {
     user: User | null;
     signIn: (email: string, password: string) => Promise<void>;
     signUp: (email: string, password: string) => Promise<void>;
+    signOut: () => Promise<void>;
     updateUser: (userData: Partial<User>) => Promise<void>;
 }
 
@@ -119,6 +120,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             setUser(profile);
         }
     };
+    const signOut = async () => {
+        await supabase.auth.signOut();
+        setUser(null);
+    };
     const updateUser = async (userData: Partial<User>) => {
         if (!user) return;
 
@@ -143,7 +148,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
     };
     return (
-        <AuthContext.Provider value={{ user, signIn, signUp, updateUser }}>
+        <AuthContext.Provider
+            value={{ user, signIn, signUp, updateUser, signOut }}
+        >
             {(isLoading && (
                 <View>
                     <ActivityIndicator size="large" color="blue" />
