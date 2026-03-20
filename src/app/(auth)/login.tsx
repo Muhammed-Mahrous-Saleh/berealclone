@@ -30,7 +30,7 @@ export default function Login() {
                 throw { message: "Please enter a valid email address." };
             }
             await signIn(email, password);
-            router.replace("../(tabs)");
+            router.replace("/(tabs)");
         } catch (error: { message: string } | any) {
             if (error.code === "validation_failed") {
                 // invalid email entered

@@ -71,7 +71,7 @@ export default function OnBoarding() {
                 onboarding_completed: true,
             });
 
-            router.replace("../(tabs)");
+            router.replace("/(tabs)");
         } catch (error: { message: string } | any) {
             Alert.alert(
                 "Error",
