@@ -1,4 +1,6 @@
+import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabase/client";
+import { uploadProfileImage } from "@/lib/supabase/storage";
 import { Text } from "@react-navigation/elements";
 import { Image } from "expo-image";
 import * as ImagePicker from "expo-image-picker";
@@ -18,32 +20,48 @@ export default function OnBoarding() {
     const [userName, setUserName] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [profileImage, setProfileImage] = useState("");
+    const { user } = useAuth();
 
     const handleComplete = async () => {
         setIsLoading(true);
+
         try {
+            if (!user) {
+                throw { message: "User not found" };
+            }
             if (!name || !userName) {
                 throw { message: "Please fill in all fields." };
             } else if (userName.length < 3) {
                 throw { message: "User name must be at least 3 characters." };
             }
             // check if user name already exists
-            const { count } = await supabase
+            const { data: existingUser } = await supabase
                 .from("profiles")
                 .select("id")
-                .eq("user_name", userName);
-            if (count) {
+                .eq("user_name", userName)
+                .neq("id", user.id)
+                .single();
+
+            if (existingUser) {
                 throw {
                     message:
                         "User name already taken, Please choose another one.",
                 };
             }
 
-            const user = await supabase.auth.getUserIdentities();
-            if (!user) {
-                throw { message: "User not found." };
+            //  Upload profile img
+            let profileImageUrl: string | undefined;
+            if (profileImage) {
+                try {
+                    profileImageUrl = await uploadProfileImage(
+                        user.id,
+                        profileImage,
+                    );
+                } catch (error) {
+                    throw { message: "Failed to upload profile image." };
+                }
             }
-            console.log("user :>> ", user.data?.identities);
+            // console.log("user :>> ", user.data?.identities);
             // const { data, error } = await supabase
             //     .from("profiles")
             //     .insert({
