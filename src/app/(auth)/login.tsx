@@ -1,5 +1,9 @@
+import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "expo-router";
+import { useState } from "react";
 import {
+    ActivityIndicator,
+    Alert,
     StyleSheet,
     Text,
     TextInput,
@@ -9,7 +13,35 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Login() {
+    const [isLoading, setIsLoading] = useState(false);
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
     const router = useRouter();
+    const { signIn } = useAuth();
+
+    const handleLogin = async () => {
+        setIsLoading(true);
+        try {
+            if (!email || !password) {
+                throw { message: "Please fill in all fields." };
+            } else if (
+                !email.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)
+            ) {
+                throw { message: "Please enter a valid email address." };
+            }
+            await signIn(email, password);
+            router.replace("../(tabs)");
+        } catch (error: { message: string } | any) {
+            if (error.code === "validation_failed") {
+                // invalid email entered
+                error.message = "Please recheck your email.";
+            }
+            console.error(error);
+            Alert.alert("Error", error.message || "Failed to login.");
+        } finally {
+            setIsLoading(false);
+        }
+    };
     return (
         <SafeAreaView edges={["top", "bottom"]} style={styles.container}>
             <View style={styles.content}>
@@ -21,6 +53,8 @@ export default function Login() {
                         placeholderTextColor={"#999"}
                         keyboardType="email-address"
                         autoComplete="email"
+                        onChangeText={setEmail}
+                        editable={!isLoading}
                         style={styles.input}
                     />
                     <TextInput
@@ -29,10 +63,20 @@ export default function Login() {
                         autoComplete="password"
                         secureTextEntry
                         autoCapitalize="none"
+                        onChangeText={setPassword}
+                        editable={!isLoading}
                         style={styles.input}
                     />
-                    <TouchableOpacity style={styles.button}>
-                        <Text style={styles.buttonText}>Sign in</Text>
+                    <TouchableOpacity
+                        style={styles.button}
+                        onPress={handleLogin}
+                        disabled={isLoading}
+                    >
+                        {isLoading ? (
+                            <ActivityIndicator size={24} color="#fff" />
+                        ) : (
+                            <Text style={styles.buttonText}>Sign in</Text>
+                        )}
                     </TouchableOpacity>
                     <TouchableOpacity
                         style={styles.linkButton}

@@ -32,8 +32,8 @@ export default function SignUp() {
             ) {
                 throw { message: "Please enter a valid email address." };
             }
-            const user = await signUp(email, password);
-            if (user) router.replace("./onBoarding");
+            await signUp(email, password);
+            router.replace("./onBoarding");
         } catch (error: { message: string } | any) {
             if (error.code === "validation_failed") {
                 // invalid email entered
