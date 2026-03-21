@@ -120,7 +120,6 @@ export default function OnBoarding() {
         if (!result.canceled && result.assets[0]) {
             setProfileImage(result.assets[0].uri);
         }
-        console.log(result);
     };
 
     const showImagePicker = () => {

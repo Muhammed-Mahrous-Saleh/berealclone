@@ -11,7 +11,6 @@ export default function Index() {
         router.replace("/(auth)/login");
     };
     const { user } = useAuth();
-    console.log(user);
     return (
         <View style={styles.container}>
             <Text>Profile Screen.</Text>
