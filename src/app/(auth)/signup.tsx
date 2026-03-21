@@ -74,6 +74,7 @@ export default function SignUp() {
                     <TouchableOpacity
                         style={styles.button}
                         onPress={handleSignUp}
+                        disabled={isLoading}
                     >
                         {isLoading ? (
                             <ActivityIndicator size={24} color="#fff" />
@@ -86,6 +87,7 @@ export default function SignUp() {
                         onPress={() => {
                             router.push("./login");
                         }}
+                        disabled={isLoading}
                     >
                         <Text style={styles.linkButtonText}>
                             Already have an account?{" "}

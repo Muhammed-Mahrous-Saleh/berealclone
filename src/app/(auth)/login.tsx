@@ -83,6 +83,7 @@ export default function Login() {
                         onPress={() => {
                             router.push("./signup");
                         }}
+                        disabled={isLoading}
                     >
                         <Text style={styles.linkButtonText}>
                             Don't hava an account?{" "}

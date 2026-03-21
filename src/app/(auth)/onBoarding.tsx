@@ -189,6 +189,7 @@ export default function OnBoarding() {
                     <TouchableOpacity
                         style={styles.button}
                         onPress={handleComplete}
+                        disabled={isLoading}
                     >
                         {isLoading ? (
                             <ActivityIndicator size={24} color="#fff" />
