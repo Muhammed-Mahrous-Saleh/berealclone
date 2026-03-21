@@ -11,7 +11,6 @@ function RouteGuard() {
     const inAuthGroup = segments[0] === "(auth)";
     const inTabsGroup = segments[0] === "(tabs)";
 
-    const isAuth = !!user;
     useEffect(() => {
         if (!user) {
             if (!inAuthGroup) {
@@ -19,7 +18,11 @@ function RouteGuard() {
             }
         } else {
             if (!inTabsGroup) {
-                router.replace("/(tabs)");
+                if (!user.onboarding_completed) {
+                    router.replace("/(auth)/onBoarding");
+                } else {
+                    router.replace("/(tabs)");
+                }
             }
         }
     }, [user, segments, router]);

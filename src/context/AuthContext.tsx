@@ -22,6 +22,7 @@ interface AuthContextType {
     signUp: (email: string, password: string) => Promise<void>;
     signOut: () => Promise<void>;
     updateUser: (userData: Partial<User>) => Promise<void>;
+    checkSession: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -149,11 +150,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
     return (
         <AuthContext.Provider
-            value={{ user, signIn, signUp, updateUser, signOut }}
+            value={{ user, signIn, signUp, updateUser, signOut, checkSession }}
         >
             {(isLoading && (
-                <View>
-                    <ActivityIndicator size="large" color="blue" />
+                <View
+                    style={{
+                        flex: 1,
+                        justifyContent: "center",
+                        alignItems: "center",
+                    }}
+                >
+                    <ActivityIndicator size={70} color="blue" />
                 </View>
             )) ||
                 children}

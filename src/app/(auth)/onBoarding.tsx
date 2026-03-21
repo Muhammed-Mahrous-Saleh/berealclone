@@ -21,7 +21,7 @@ export default function OnBoarding() {
     const [userName, setUserName] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [profileImage, setProfileImage] = useState("");
-    const { user, updateUser } = useAuth();
+    const { user, updateUser, checkSession } = useAuth();
     const router = useRouter();
 
     const handleComplete = async () => {
@@ -70,7 +70,7 @@ export default function OnBoarding() {
                 user_name: userName,
                 onboarding_completed: true,
             });
-
+            await checkSession();
             router.replace("/(tabs)");
         } catch (error: { message: string } | any) {
             Alert.alert(
