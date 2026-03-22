@@ -22,7 +22,7 @@ function PostCard({
     currentUserId,
 }: {
     post: Post;
-    currentUserId: string;
+    currentUserId: string | undefined;
 }) {
     const postUser = post.profile;
     const isOwnPost = post.user_id === currentUserId;
@@ -182,7 +182,7 @@ export default function Index() {
         }
     };
     const renderPost = ({ item }: { item: Post }) => {
-        return <PostCard post={item} currentUserId={user!.id} />;
+        return <PostCard post={item} currentUserId={user?.id} />;
     };
     return (
         <SafeAreaView style={styles.container} edges={["top"]}>

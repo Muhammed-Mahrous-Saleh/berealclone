@@ -2,6 +2,7 @@ import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { Stack, useRouter, useSegments } from "expo-router";
 import "expo-router/entry";
 import { useEffect } from "react";
+import { StatusBar } from "react-native";
 
 function RouteGuard() {
     const router = useRouter();
@@ -27,11 +28,14 @@ function RouteGuard() {
         }
     }, [user, segments, router]);
     return (
-        <Stack screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="(tabs)" />
-            <Stack.Screen name="(auth)" />
-            <Stack.Screen name="index" />
-        </Stack>
+        <>
+            <StatusBar backgroundColor="black" />
+            <Stack screenOptions={{ headerShown: false }}>
+                <Stack.Screen name="(tabs)" />
+                <Stack.Screen name="(auth)" />
+                <Stack.Screen name="index" />
+            </Stack>
+        </>
     );
 }
 
