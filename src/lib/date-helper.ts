@@ -26,7 +26,10 @@ export const formatTimeAgo = (createdAt: string) => {
     return message;
 };
 
-export const formatTimeRemaining = (expires_at: Date) => {
+export const formatTimeRemaining = (
+    expires_at: Date,
+    hasEnding: boolean = true,
+) => {
     const now = new Date();
     const expiresAt = new Date(expires_at);
     const timeDiff = expiresAt.getTime() - now.getTime();
@@ -50,5 +53,5 @@ export const formatTimeRemaining = (expires_at: Date) => {
             message += `${minutes}m `;
         }
     }
-    return `${message}left`;
+    return `${message}${hasEnding ? "left" : ""}`;
 };
