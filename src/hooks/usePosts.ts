@@ -40,7 +40,6 @@ export const usePosts = () => {
                 .select("*, profiles(*)")
                 .eq("is_active", true)
                 .gt("expires_at", new Date().toISOString())
-                .eq("user_id", user.id)
                 .order("created_at", { ascending: false });
             if (postsError) {
                 console.error("Error loading posts:", postsError);
