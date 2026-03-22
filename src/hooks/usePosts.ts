@@ -69,7 +69,18 @@ export const usePosts = () => {
             const now = new Date();
             const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000);
 
-            // 1. Insert the record FIRST (without the image URL)
+            // Deactivate any active posts for the user.
+            const { error: deactivateError } = await supabase
+                .from("posts")
+                .update({ is_active: false })
+                .eq("user_id", user.id)
+                .eq("is_active", true);
+            if (deactivateError) {
+                console.error("Error deactivating posts:", deactivateError);
+                throw deactivateError;
+            }
+
+            // Insert the record FIRST (without the image URL)
             const { data: newPost, error: insertError } = await supabase
                 .from("posts")
                 .insert({
@@ -86,18 +97,20 @@ export const usePosts = () => {
                 throw insertError;
             }
 
-            // 2. Use the database-generated ID to upload the image
+            // Use the database-generated ID to upload the image
             const imageUrl = await uploadPostImage(
                 user.id,
                 newPost.id,
                 imageUri,
             );
 
-            // 3. UPDATE the post with the fresh image URL
+            // UPDATE the post with the fresh image URL
             const { error: updateError } = await supabase
                 .from("posts")
                 .update({ image_url: imageUrl })
                 .eq("id", newPost.id);
+
+            await loadPosts();
         } catch (error) {
             console.error("Error creating post:", error);
             throw error;

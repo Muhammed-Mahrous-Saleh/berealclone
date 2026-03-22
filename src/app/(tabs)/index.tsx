@@ -73,7 +73,7 @@ function PostCard({
                     )}
                     <Text style={styles.postInfo}>
                         {isOwnPost ? "Your Post" : `@${postUser?.name} Post`} ●
-                        Expires in {formatTimeRemaining(post.expires_at)}
+                        Expires in {formatTimeRemaining(post.expires_at, false)}
                     </Text>
                 </View>
             </View>
@@ -89,6 +89,15 @@ export default function Index() {
 
     const { createPost, posts } = usePosts();
     const { user } = useAuth();
+
+    const userActivePost = posts.find(
+        (post) =>
+            post.user_id === user?.id &&
+            post.is_active &&
+            new Date(post.expires_at) > new Date(),
+    );
+
+    const hasActivePost = !!userActivePost;
 
     const pickImage = async () => {
         const { status } =
@@ -180,13 +189,17 @@ export default function Index() {
             <FlatList data={posts} renderItem={renderPost} />
 
             <TouchableOpacity style={styles.fab} onPress={showImagePicker}>
-                <Text style={styles.fabText}>+</Text>
+                <Text style={styles.fabText}>{!hasActivePost ? "+" : "✎"}</Text>
             </TouchableOpacity>
 
             <Modal visible={showPreview} transparent animationType="fade">
                 <View style={styles.modalContainer}>
                     <View style={styles.modalContent}>
-                        <Text style={styles.modalTitle}>Preview Your Post</Text>
+                        <Text style={styles.modalTitle}>
+                            {hasActivePost
+                                ? "Replace Your Post"
+                                : "Preview Your Post"}
+                        </Text>
                         {realImage && (
                             <Image
                                 style={styles.previewImage}
@@ -233,6 +246,7 @@ export default function Index() {
                                             color="#fff"
                                         />
                                     )) ||
+                                        (hasActivePost && "Replace") ||
                                         "Post"}
                                 </Text>
                             </TouchableOpacity>
@@ -274,6 +288,9 @@ const styles = StyleSheet.create({
         color: "#fff",
         fontWeight: "300",
         lineHeight: 32,
+        alignItems: "center",
+        justifyContent: "center",
+        textAlignVertical: "center",
     },
     input: {
         backgroundColor: "#f5f5f5",
