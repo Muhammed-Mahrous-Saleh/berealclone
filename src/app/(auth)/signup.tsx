@@ -1,5 +1,9 @@
+import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "expo-router";
+import { useState } from "react";
 import {
+    ActivityIndicator,
+    Alert,
     StyleSheet,
     Text,
     TextInput,
@@ -9,7 +13,39 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function SignUp() {
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
+    const { signUp } = useAuth();
+    const testing = true;
+
+    const handleSignUp = async () => {
+        setIsLoading(true);
+        try {
+            if (!email || !password) {
+                throw { message: "Please fill in all fields." };
+            } else if (password.length < 6) {
+                throw { message: "Password must be at least 6 characters." };
+            } else if (
+                !email.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)
+            ) {
+                throw { message: "Please enter a valid email address." };
+            }
+            await signUp(email, password);
+            router.replace("./onBoarding");
+        } catch (error: { message: string } | any) {
+            if (error.code === "validation_failed") {
+                // invalid email entered
+                error.message = "Please recheck your email.";
+            }
+            console.error(error);
+            Alert.alert("Error", error.message || "Failed to sign up.");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     return (
         <SafeAreaView edges={["top", "bottom"]} style={styles.container}>
             <View style={styles.content}>
@@ -21,7 +57,9 @@ export default function SignUp() {
                         placeholderTextColor={"#999"}
                         keyboardType="email-address"
                         autoComplete="email"
+                        onChangeText={setEmail}
                         style={styles.input}
+                        editable={!isLoading}
                     />
                     <TextInput
                         placeholder="Password..."
@@ -29,16 +67,27 @@ export default function SignUp() {
                         autoComplete="password"
                         secureTextEntry
                         autoCapitalize="none"
+                        onChangeText={setPassword}
                         style={styles.input}
+                        editable={!isLoading}
                     />
-                    <TouchableOpacity style={styles.button}>
-                        <Text style={styles.buttonText}>Sign up</Text>
+                    <TouchableOpacity
+                        style={styles.button}
+                        onPress={handleSignUp}
+                        disabled={isLoading}
+                    >
+                        {isLoading ? (
+                            <ActivityIndicator size={24} color="#fff" />
+                        ) : (
+                            <Text style={styles.buttonText}>Sign up</Text>
+                        )}
                     </TouchableOpacity>
                     <TouchableOpacity
                         style={styles.linkButton}
                         onPress={() => {
                             router.push("./login");
                         }}
+                        disabled={isLoading}
                     >
                         <Text style={styles.linkButtonText}>
                             Already have an account?{" "}
