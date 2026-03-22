@@ -7,7 +7,7 @@ export default function TabsLayout() {
             <Tabs.Screen
                 name="index"
                 options={{
-                    title: "Home",
+                    headerShown: false,
                     tabBarIcon: ({ color, focused, size }) => (
                         <Ionicons
                             name={(focused && "home") || "home-outline"}
@@ -20,7 +20,7 @@ export default function TabsLayout() {
             <Tabs.Screen
                 name="profile"
                 options={{
-                    title: "Profile",
+                    headerShown: false,
                     tabBarIcon: ({ color, focused, size }) => (
                         <Ionicons
                             name={(focused && "person") || "person-outline"}
