@@ -1,7 +1,9 @@
+import { usePosts } from "@/hooks/usePosts";
 import { Image } from "expo-image";
 import * as ImagePicker from "expo-image-picker";
 import { useState } from "react";
 import {
+    ActivityIndicator,
     Alert,
     Modal,
     StyleSheet,
@@ -17,6 +19,8 @@ export default function Index() {
     const [description, setDescription] = useState("");
     const [realImage, setRealImage] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+
+    const { createPost } = usePosts();
 
     const pickImage = async () => {
         const { status } =
@@ -84,11 +88,11 @@ export default function Index() {
         setDescription("");
         setShowPreview(false);
     };
-    const handlePost = () => {
+    const handlePost = async () => {
         if (!realImage) return;
         try {
             setIsLoading(true);
-            // uploadProfileImage(realImage, description);
+            await createPost(realImage, description);
             setRealImage("");
             setDescription("");
             setShowPreview(false);
@@ -144,7 +148,15 @@ export default function Index() {
                                 onPress={handlePost}
                                 disabled={isLoading}
                             >
-                                <Text style={styles.postButtonText}>Post</Text>
+                                <Text style={styles.postButtonText}>
+                                    {(isLoading && (
+                                        <ActivityIndicator
+                                            size={24}
+                                            color="#fff"
+                                        />
+                                    )) ||
+                                        "Post"}
+                                </Text>
                             </TouchableOpacity>
                         </View>
                     </View>
