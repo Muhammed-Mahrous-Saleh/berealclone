@@ -9,6 +9,7 @@ import {
     Alert,
     FlatList,
     Modal,
+    RefreshControl,
     StyleSheet,
     Text,
     TextInput,
@@ -86,8 +87,9 @@ export default function Index() {
     const [description, setDescription] = useState("");
     const [realImage, setRealImage] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+    const [refreshing, setRefreshing] = useState(false);
 
-    const { createPost, posts } = usePosts();
+    const { createPost, posts, loadPosts: refreshingPosts } = usePosts();
     const { user } = useAuth();
 
     const userActivePost = posts.find(
@@ -98,6 +100,17 @@ export default function Index() {
     );
 
     const hasActivePost = !!userActivePost;
+
+    const handleOnRefresh = async () => {
+        setRefreshing(true);
+        try {
+            await refreshingPosts();
+        } catch (error) {
+            console.error("Error loading posts:", error);
+        } finally {
+            setRefreshing(false);
+        }
+    };
 
     const pickImage = async () => {
         const { status } =
@@ -186,7 +199,21 @@ export default function Index() {
     };
     return (
         <SafeAreaView style={styles.container} edges={["top"]}>
-            <FlatList data={posts} renderItem={renderPost} />
+            <FlatList
+                data={posts}
+                renderItem={renderPost}
+                keyExtractor={(item) => item.id}
+                contentContainerStyle={
+                    posts.length === 0 ? styles.emptyContent : styles.content
+                }
+                ListEmptyComponent={<Text>No posts found</Text>}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={handleOnRefresh}
+                    />
+                }
+            />
 
             <TouchableOpacity style={styles.fab} onPress={showImagePicker}>
                 <Text style={styles.fabText}>{!hasActivePost ? "+" : "✎"}</Text>
@@ -451,5 +478,15 @@ const styles = StyleSheet.create({
     postInfo: {
         fontSize: 14,
         color: "#666",
+    },
+    emptyContent: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        padding: 16,
+    },
+    content: {
+        padding: 16,
+        paddingBottom: 100,
     },
 });

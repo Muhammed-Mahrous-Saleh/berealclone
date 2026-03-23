@@ -115,5 +115,5 @@ export const usePosts = () => {
             throw error;
         }
     };
-    return { createPost, posts, isLoading };
+    return { createPost, posts, isLoading, loadPosts };
 };
