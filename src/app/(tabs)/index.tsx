@@ -186,7 +186,6 @@ export default function Index() {
             setRealImage("");
             setDescription("");
             setShowPreview(false);
-            console.log("after posting :", posts);
         } catch (error) {
             console.error("Error on creating post:", error);
             Alert.alert("Error", "Failed to create post. Please try again.");
