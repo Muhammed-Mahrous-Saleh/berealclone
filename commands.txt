@@ -1,2 +1,37 @@
 # to fix any package version not compatible with expo other versions 
 npx expo-doctor
+
+# make rand hex pass 
+openssl rand -hex 32
+
+# make aab file with react native to publish to play store 
+keytool -genkeypair -v -storetype PKCS12 -keystore my-upload-key.keystore -alias my-key-alias -keyalg RSA -keysize 2048 -validity 10000
+
+# paste rand hex pass as file pass and follow the instructions
+# cut and paste the keystore file in android/app folder
+
+# edit gradle/properties file
+MYAPP_UPLOAD_STORE_FILE=my-upload-key.keystore
+MYAPP_UPLOAD_KEY_ALIAS=my-key-alias
+MYAPP_UPLOAD_STORE_PASSWORD=*****
+MYAPP_UPLOAD_KEY_PASSWORD=*****
+
+# comment debug lines in build.gradle file under signingConfigs and buildTypes
+# add following lines under signingConfigs 
+release {
+            if (project.hasProperty('MYAPP_UPLOAD_STORE_FILE')) {
+                storeFile file("./my-upload-key.keystore")
+                storePassword MYAPP_UPLOAD_STORE_PASSWORD
+                keyAlias MYAPP_UPLOAD_KEY_ALIAS
+                keyPassword MYAPP_UPLOAD_KEY_PASSWORD
+            }
+        }
+# replace debug to relase command to run while building
+signingConfig signingConfigs.release
+
+# build aab file using react-native
+pnpm react-native build-android --mode-release
+
+# build apk file 
+pnpm expo run:android --variant release
+
