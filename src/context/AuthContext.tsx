@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase/client";
+import Loading from "@/widgets/Loading";
 import {
     createContext,
     ReactNode,
@@ -6,7 +7,6 @@ import {
     useEffect,
     useState,
 } from "react";
-import { ActivityIndicator, View } from "react-native";
 
 export interface User {
     id: string;
@@ -143,6 +143,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 .update(updateData)
                 .eq("id", user.id);
             if (error) throw error;
+            const profile = await fetchUserProfile(user.id);
+            setUser(profile);
         } catch (error) {
             console.error("Error updating user:", error);
             throw error;
@@ -152,18 +154,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         <AuthContext.Provider
             value={{ user, signIn, signUp, updateUser, signOut, checkSession }}
         >
-            {(isLoading && (
-                <View
-                    style={{
-                        flex: 1,
-                        justifyContent: "center",
-                        alignItems: "center",
-                    }}
-                >
-                    <ActivityIndicator size={70} color="blue" />
-                </View>
-            )) ||
-                children}
+            {(isLoading && <Loading />) || children}
         </AuthContext.Provider>
     );
 };
